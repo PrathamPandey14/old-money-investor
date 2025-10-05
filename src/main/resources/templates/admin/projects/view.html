@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${project.name} + ' - Details'">Project Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+<div class="container mx-auto px-6 py-10">
+    <a th:href="@{/admin/projects}" class="text-blue-600 hover:underline mb-4 inline-block">&larr; Back to Projects</a>
+
+    <h1 class="text-4xl font-bold mb-4" th:text="${project.name}">Project Name</h1>
+    <p class="text-gray-700 mb-2" th:text="'Location: ' + ${project.location}"></p>
+    <p class="text-gray-700 mb-2" th:text="'Developer: ' + ${project.developerName}"></p>
+    <p class="text-gray-700 mb-2" th:text="'Status: ' + ${project.status}"></p>
+    <p class="text-gray-700 mb-4" th:text="'Total Units: ' + ${project.totalUnits}"></p>
+    <p class="text-gray-700 mb-4" th:text="'Price Range: ' + ${project.priceRange}"></p>
+    <p th:text="'Launch Date: ' + ${#temporals.format(project.launchDate, 'dd MMM yyyy')}"></p>
+    <p th:text="'Completion Date: ' + ${#temporals.format(project.completionDate, 'dd MMM yyyy')}"></p>
+    <p class="text-gray-700 mb-4" th:text="${project.description}"></p>
+
+    <!-- Amenities -->
+    <h2 class="text-2xl font-semibold mt-6 mb-2">Amenities</h2>
+    <ul class="list-disc list-inside text-gray-700">
+        <li th:each="amenity : ${project.amenities}" th:text="${amenity}">Amenity</li>
+    </ul>
+
+    <!-- Images -->
+    <h2 class="text-2xl font-semibold mt-6 mb-2">Images</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <img th:each="img : ${project.images}" th:src="${img}" class="w-full h-48 object-cover rounded" alt="Project Image">
+    </div>
+</div>
+
+</body>
+</html>

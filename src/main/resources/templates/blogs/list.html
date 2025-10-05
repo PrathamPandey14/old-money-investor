@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Blogs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+
+        body { background-color: #F5F5F5; color: #1C1C1C; }
+
+        .card { transition: transform 0.3s, box-shadow 0.3s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+
+        .glass { background: rgba(72,60,50,0.05); backdrop-filter: blur(12px); border: 1px solid rgba(72,60,50,0.15); }
+
+        .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .line-clamp-4 { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+
+        .carousel { position: relative; }
+        .carousel img { display: none; }
+        .carousel img.active { display: block; border-radius: 0.5rem; }
+
+        #mobileMenu { overflow: hidden; max-height: 0; transition: max-height 0.3s ease, padding 0.3s ease; }
+
+        h1, h2, h3, a { color: #483C32; }
+        a:hover { color: #3A322A; }
+
+        header { background: #fffaf5; }
+        header p { color: #5C4B3F; }
+        .carousel button { background-color: rgba(72,60,50,0.2); color: #fff; }
+        .carousel button:hover { background-color: rgba(72,60,50,0.4); }
+
+        nav a.bg-[#1DCD9F] { background-color: #483C32 !important; color: #fff !important; }
+        nav a:hover { background-color: #3A322A !important; }
+    </style>
+</head>
+<body class="bg-[#F5F5F5] text-[#1C1C1C] font-sans">
+
+<!-- Navbar -->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- Header -->
+<header class="relative text-center min-h-[45vh] flex items-center bg-[#F5F5F5] overflow-hidden">
+    <div class="absolute inset-0">
+        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1600&q=80"
+             alt="Blogs Background" class="w-full h-full object-cover opacity-40" loading="lazy">
+        <div class="absolute inset-0 bg-gradient-to-b from-[#FFF9F4]/90 via-[#F5F5F5]/95 to-[#F5F5F5]"></div>
+    </div>
+    <div class="absolute top-10 left-1/4 w-56 h-56 bg-[#483C32]/20 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-6 right-1/4 w-64 h-64 bg-[#A38D6C]/20 rounded-full blur-3xl"></div>
+    <div class="relative z-10 max-w-3xl mx-auto px-6 text-center">
+        <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight
+                   bg-gradient-to-r from-[#483C32] via-[#6E5A4A] to-[#A38D6C]
+                   bg-clip-text text-transparent animate-fade-in">
+            Welcome to Our Blog
+        </h1>
+        <p class="mt-4 text-base md:text-lg text-[#3A322A] leading-relaxed animate-slide-up">
+            Discover stories, guides, and insights crafted to inspire and empower you
+            in <span class="font-semibold text-[#483C32]">technology, creativity, and growth</span>.
+        </p>
+        <p class="mt-2 text-sm md:text-base text-[#5C4B3F]/80 animate-slide-up">
+            Stay ahead with expert articles, trending ideas, and community voices.
+        </p>
+        <div class="mt-8 flex justify-center">
+            <span class="h-1 w-16 md:w-24 bg-gradient-to-r from-[#483C32] to-[#A38D6C] rounded-full animate-pulse"></span>
+        </div>
+    </div>
+</header>
+
+<!-- Blogs Grid -->
+<section class="max-w-7xl mx-auto px-4 md:px-6 py-10 md:py-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+    <div th:each="blog : ${blogs}" class="card glass p-4 md:p-6 rounded-xl flex flex-col justify-between">
+        <div>
+            <h2 class="text-xl md:text-2xl font-bold" th:text="${blog.title}"></h2>
+            <!-- Image Carousel -->
+            <div class="carousel mt-3 relative">
+                <img th:each="img,iter : ${blog.imageList}"
+                     th:src="@{${img}}"
+                     th:classappend="${iter.index == 0} ? 'active' : ''"
+                     class="w-full h-48 md:h-56 object-cover rounded-lg border border-[#483C32]" loading="lazy">
+                <button type="button" class="prev absolute left-2 top-1/2 -translate-y-1/2 px-2 py-1 rounded">‹</button>
+                <button type="button" class="next absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 rounded">›</button>
+            </div>
+            <p class="text-[#5C4B3F] mt-2 text-sm md:text-base line-clamp-4" th:text="${blog.content}"></p>
+        </div>
+        <div class="mt-4 flex justify-between items-center text-xs md:text-sm">
+            <span class="text-[#5C4B3F]" th:text="${blog.author}"></span>
+            <a th:href="@{'/blogs/details/' + ${blog.id}}" class="font-semibold hover:underline">Read More</a>
+        </div>
+    </div>
+</section>
+
+<!-- Pagination -->
+<div class="flex justify-center mt-12 space-x-2">
+    <a th:if="${page.hasPrevious()}" th:href="@{/blogs(page=${currentPage - 1})}"
+       class="px-4 py-2 bg-[#F5F5F5] rounded hover:bg-[#483C32] hover:text-white transition">Prev</a>
+    <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+        <a th:href="@{/blogs(page=${i})}"
+           th:text="${i + 1}"
+           th:classappend="${i == currentPage} ? 'bg-[#483C32] text-white' : 'bg-[#F5F5F5] text-[#483C32]'"
+           class="px-4 py-2 rounded hover:bg-[#A38D6C] transition"></a>
+    </span>
+    <a th:if="${page.hasNext()}" th:href="@{/blogs(page=${currentPage + 1})}"
+       class="px-4 py-2 bg-[#F5F5F5] rounded hover:bg-[#483C32] hover:text-white transition">Next</a>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const toggleButton = document.getElementById("mobileToggle");
+        const mobileMenu = document.getElementById("mobileMenu");
+
+        toggleButton?.addEventListener("click", () => {
+            const isOpen = mobileMenu.style.maxHeight && mobileMenu.style.maxHeight !== "0px";
+            mobileMenu.style.maxHeight = isOpen ? "0px" : mobileMenu.scrollHeight + "px";
+            mobileMenu.style.paddingTop = isOpen ? "0" : "0.5rem";
+            mobileMenu.style.paddingBottom = isOpen ? "0" : "0.5rem";
+        });
+
+        // Optimized Carousel
+        document.querySelectorAll('.carousel').forEach(carousel => {
+            const images = Array.from(carousel.querySelectorAll('img'));
+            let index = images.findIndex(img => img.classList.contains('active'));
+            if(index < 0) index = 0;
+
+            const prevBtn = carousel.querySelector(".prev");
+            const nextBtn = carousel.querySelector(".next");
+
+            const showImage = (i) => {
+                images.forEach(img => img.classList.remove("active"));
+                images[i].classList.add("active");
+            };
+
+            prevBtn?.addEventListener("click", () => {
+                index = (index - 1 + images.length) % images.length;
+                showImage(index);
+            });
+            nextBtn?.addEventListener("click", () => {
+                index = (index + 1) % images.length;
+                showImage(index);
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Edit Property</title>
+    <style>
+        :root{
+          --bg-1:#000; --bg-2:#222; --accent:#1DCD9F; --accent-dark:#169976;
+          --radius:14px; --card-shadow:0 14px 30px rgba(0,0,0,0.5);
+        }
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{
+          font-family:Inter,'Segoe UI',sans-serif;
+          background:linear-gradient(180deg,var(--bg-2),#070707);
+          color:#e9f5f2;padding:36px;
+        }
+        .wrap{max-width:1100px;margin:0 auto}
+        .nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+        .brand{color:var(--accent);font-weight:700;text-decoration:none;display:flex;align-items:center;gap:.6rem}
+        .brand .logo{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));display:inline-flex;align-items:center;justify-content:center;color:#001010;font-weight:800}
+        .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:28px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.04);box-shadow:var(--card-shadow);backdrop-filter: blur(8px);}
+        h1{color:#f3fff9;margin-bottom:8px}
+        .muted{color:rgba(230,238,240,0.65);margin-bottom:18px}
+
+        form .col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+        @media (max-width:820px){form .col{grid-template-columns:1fr}}
+
+        label{display:block;margin:10px 0 6px;font-weight:600;color:rgba(230,238,240,0.9)}
+        input,select,textarea{width:100%;padding:12px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.08);color:inherit;font-size:1rem;}
+        input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 8px 24px rgba(25,180,140,0.15);border-color:var(--accent);}
+        textarea{min-height:120px;resize:vertical}
+
+        .file-preview,.existing-images,.carousel-thumbnails{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+        .file-preview img,.existing-images img,.carousel-thumbnails img{width:110px;height:72px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,0.06);cursor:pointer}
+        .carousel-thumbnails img.active{border:2px solid var(--accent)}
+
+        .carousel{position:relative;width:100%;margin-top:16px;overflow:hidden;border-radius:12px;border:1px solid rgba(255,255,255,0.1);display:none;}
+        .carousel-track{display:flex;transition:transform .5s ease;}
+        .carousel-track img{width:100%;height:400px;object-fit:cover;flex-shrink:0;border-radius:12px;}
+        .carousel button{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.5);color:white;border:none;padding:10px;border-radius:50%;cursor:pointer;}
+        .carousel .prev{left:10px}
+        .carousel .next{right:10px}
+
+        .actions{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap}
+        .btn{background:linear-gradient(90deg,var(--accent),var(--accent-dark));color:#001;padding:.7rem 1rem;border-radius:10px;border:none;font-weight:700;cursor:pointer;transition:0.2s}
+        .btn:hover{opacity:0.9}
+        .ghost{background:transparent;border:1px solid rgba(255,255,255,0.08);padding:.55rem .9rem;border-radius:10px;color:inherit;text-decoration:none;transition:0.2s}
+        .ghost:hover{border-color:var(--accent);color:var(--accent)}
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <nav class="nav">
+        <a class="brand" th:href="@{/admin}">
+            <span class="logo">OMI</span>
+            <span>Admin Panel</span>
+        </a>
+    </nav>
+
+    <main class="card">
+        <h1>Edit Property</h1>
+        <p class="muted">Update property details and manage uploaded images.</p>
+
+        <form th:action="@{'/admin/properties/edit/' + ${propertyDto.id}}" th:object="${propertyDto}" method="post" enctype="multipart/form-data">
+
+            <!-- Basic Info -->
+            <div class="col">
+                <div>
+                    <label>Title</label><input type="text" th:field="*{title}" required>
+                    <label>Location</label><input type="text" th:field="*{location}" required>
+                    <label>Price</label><input type="text" th:field="*{price}">
+                    <label>Developer</label><input type="text" th:field="*{developer}">
+                    <label>Bedrooms</label><input type="text" th:field="*{bedrooms}">
+                    <label>Bathrooms</label><input type="text" th:field="*{bathrooms}">
+                    <label>Balcony</label><input type="text" th:field="*{balcony}">
+                </div>
+
+                <div>
+                    <label>Transaction Type</label>
+                    <select th:field="*{transactionType}">
+                        <option value="" disabled>Select Transaction Type</option>
+                        <option value="Sale" th:selected="${propertyDto.transactionType=='Sale'}">Sale</option>
+                        <option value="Rent" th:selected="${propertyDto.transactionType=='Rent'}">Rent</option>
+                    </select>
+
+                    <label>Status</label>
+                    <select th:field="*{status}">
+                        <option value="" disabled>Select Status</option>
+                        <option value="Available" th:selected="${propertyDto.status=='Available'}">Available</option>
+                        <option value="Sold" th:selected="${propertyDto.status=='Sold'}">Sold</option>
+                        <option value="Booked" th:selected="${propertyDto.status=='Booked'}">Booked</option>
+                    </select>
+
+                    <label>Facing</label>
+                    <select th:field="*{facing}">
+                        <option value="" disabled>Select Facing</option>
+                        <option value="North" th:selected="${propertyDto.facing=='North'}">North</option>
+                        <option value="South" th:selected="${propertyDto.facing=='South'}">South</option>
+                        <option value="East" th:selected="${propertyDto.facing=='East'}">East</option>
+                        <option value="West" th:selected="${propertyDto.facing=='West'}">West</option>
+                    </select>
+
+                    <label>Furnished Status</label>
+                    <select th:field="*{furnishedStatus}">
+                        <option value="" disabled>Select</option>
+                        <option value="Furnished" th:selected="${propertyDto.furnishedStatus=='Furnished'}">Furnished</option>
+                        <option value="Semi-furnished" th:selected="${propertyDto.furnishedStatus=='Semi-furnished'}">Semi-furnished</option>
+                        <option value="Unfurnished" th:selected="${propertyDto.furnishedStatus=='Unfurnished'}">Unfurnished</option>
+                    </select>
+
+                    <label>Type of Ownership</label>
+                    <input type="text" th:field="*{typeOfOwnership}">
+                    <label>Carpet Area</label><input type="text" th:field="*{carpetArea}">
+                    <label>Floor</label><input type="text" th:field="*{floor}">
+                </div>
+            </div>
+
+            <!-- Additional Info -->
+            <div class="col" style="margin-top:18px">
+                <div>
+                    <label>Age of Construction</label><input type="text" th:field="*{ageOfConstruction}">
+                    <label>Price Breakup</label><textarea th:field="*{priceBreakup}"></textarea>
+                    <label>Booking Amount</label><input type="text" th:field="*{bookingAmount}">
+                    <label>Address</label><textarea th:field="*{address}"></textarea>
+                </div>
+
+                <div>
+                    <label>Furnishing Details</label><input type="text" th:field="*{furnishing}">
+                    <label>Flooring</label><input type="text" th:field="*{flooring}">
+                    <label>Overlooking</label><input type="text" th:field="*{overlooking}">
+                    <label>Additional Rooms</label><input type="text" th:field="*{additionalRooms}">
+                    <label>Floors Allowed</label><input type="text" th:field="*{floorsAllowed}">
+                    <label>Authority Approval</label><input type="text" th:field="*{authorityApproval}">
+                    <label>Description</label><textarea th:field="*{description}"></textarea>
+                </div>
+            </div>
+
+            <!-- Amenities -->
+=
+                    <div style="grid-column:1/-1"><label>Amenities</label>
+                        <select th:field="*{amenities}" multiple>
+                            <option value="Swimming_Pool">Swimming Pool</option>
+                            <option value="Power_Backup">Power Backup</option>
+                            <option value="Lift">Lift</option>
+                            <option value="Security">Security</option>
+                            <option value="CCTV_Camera">CCTV Camera</option>
+                            <option value="Gymnasium">Gymnasium</option>
+                            <option value="Gardens">Gardens</option>
+                            <option value="Parking">Parking</option>
+                            <option value="Club_house">Club House</option>
+                            <option value="Indoor_games">Indoor Games</option>
+                            <option value="Outdoor_games">Outdoor Games</option>
+                        </select>
+                    </div>
+
+
+            <!-- Images Upload & Carousel -->
+            <div style="margin-top:18px">
+                <label>Upload New Images</label>
+                <input type="file" name="files" multiple onchange="previewCarousel(event)">
+                <div class="carousel" id="editCarousel">
+                    <div class="carousel-track" id="editCarouselTrack"></div>
+                    <button type="button" class="prev" onclick="moveEditCarousel(-1)">❮</button>
+                    <button type="button" class="next" onclick="moveEditCarousel(1)">❯</button>
+                </div>
+                <div class="carousel-thumbnails" id="editCarouselThumbnails"></div>
+
+                <p style="margin-top:12px;font-weight:600">Existing Images:</p>
+                <div class="existing-images">
+                    <img th:each="img : ${propertyDto.imageList}" th:src="@{${img}}" th:alt="${img}"/>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="actions">
+                <button type="submit" class="btn">Update Property</button>
+                <a th:href="@{/admin/properties}" class="ghost">← Back to Properties</a>
+            </div>
+        </form>
+    </main>
+</div>
+
+<script>
+    let currentIndex=0;
+    function previewCarousel(event){
+        const track=document.getElementById('editCarouselTrack');
+        const carousel=document.getElementById('editCarousel');
+        const thumbs=document.getElementById('editCarouselThumbnails');
+        track.innerHTML=''; thumbs.innerHTML=''; currentIndex=0;
+        const files=Array.from(event.target.files);
+        if(files.length===0){carousel.style.display='none'; return;}
+        carousel.style.display='block';
+        files.forEach((file,i)=>{
+            const reader=new FileReader();
+            reader.onload=e=>{
+                const img=document.createElement('img');
+                img.src=e.target.result;
+                track.appendChild(img);
+                const thumb=document.createElement('img');
+                thumb.src=e.target.result;
+                if(i===0) thumb.classList.add('active');
+                thumb.onclick=()=>{currentIndex=i; updateEditCarousel();}
+                thumbs.appendChild(thumb);
+            }
+            reader.readAsDataURL(file);
+        });
+    }
+    function moveEditCarousel(step){
+        const track=document.getElementById('editCarouselTrack');
+        const total=track.children.length;
+        if(total===0) return;
+        currentIndex=(currentIndex+step+total)%total;
+        updateEditCarousel();
+    }
+    function updateEditCarousel(){
+        const track=document.getElementById('editCarouselTrack');
+        const thumbs=document.getElementById('editCarouselThumbnails').children;
+        track.style.transform=`translateX(-${currentIndex*100}%)`;
+        Array.from(thumbs).forEach((t,i)=>t.classList.toggle('active', i===currentIndex));
+    }
+</script>
+</body>
+</html>

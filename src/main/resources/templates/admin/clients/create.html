@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clients</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #d1d5db; padding: 8px; text-align: left; }
+        th { background-color: #f3f4f6; }
+        input, select { width: 100%; padding: 4px; box-sizing: border-box; }
+        .bg-yellow-100 { background-color: #fef3c7; }
+        .bg-red-100 { background-color: #fee2e2; }
+    </style>
+</head>
+<body class="bg-gray-50 p-6">
+
+<h1 class="text-2xl font-bold mb-4">Clients</h1>
+
+<!-- Error Message -->
+<div th:if="${error}" class="mb-4 p-3 rounded bg-red-100 text-red-800 border border-red-400">
+    <span th:text="${error}"></span>
+</div>
+
+<!-- Stats -->
+<div class="mb-4">
+    <span class="mr-4 font-semibold">Follow-ups Today: <span th:text="${followUpsToday}"></span></span>
+    <span class="font-semibold">Overdue Follow-ups: <span th:text="${overdueFollowUps}"></span></span>
+</div>
+
+<!-- Add Client Button -->
+<div class="mb-4">
+    <button id="addRowBtn" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+        Add Client
+    </button>
+</div>
+
+<!-- Client Table -->
+<table class="shadow-md bg-white" id="clientTable">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Status</th>
+        <th>Follow-Up Date</th>
+        <th>Budget</th>
+        <th>Today's Date</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Existing clients -->
+    <tr th:each="row : ${clientRows}" th:attr="data-id=${row.client.id}">
+        <td th:text="${row.client.name}"></td>
+        <td th:text="${row.client.phone}"></td>
+        <td th:text="${row.client.status}"></td>
+        <td th:text="${row.client.followUpDate}"></td>
+        <td th:text="${row.client.budget}"></td>
+        <td th:text="${todayStr}"></td>
+        <td>
+            <button class="editBtn bg-blue-500 hover:bg-blue-700 text-white px-2 py-1 rounded">Edit</button>
+            <button class="deleteBtn bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded">Delete</button>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<script>
+    const table = document.getElementById('clientTable').getElementsByTagName('tbody')[0];
+    const addRowBtn = document.getElementById('addRowBtn');
+    const todayStr = new Date().toISOString().split('T')[0];
+    const budgetOptions = ["0 - 50 Lakhs", "50 Lakhs - 1 Cr", "1 Cr+ "];
+
+    function getRowColor(followUpDate) {
+        if (!followUpDate) return '';
+        const followUp = new Date(followUpDate);
+        const today = new Date(todayStr);
+        if (followUp.toDateString() === today.toDateString()) return 'bg-yellow-100';
+        if (followUp < today) return 'bg-red-100';
+        return '';
+    }
+
+    // Add new row
+    addRowBtn.addEventListener('click', () => {
+        const newRow = table.insertRow(0);
+        newRow.setAttribute("data-id", "");
+        newRow.innerHTML = `
+            <td><input type="text" placeholder="Name" required></td>
+            <td><input type="text" placeholder="Phone" required></td>
+            <td>
+                <select>
+                    <option value="NEW">NEW</option>
+                    <option value="IN_PROGRESS">IN_PROGRESS</option>
+                    <option value="COMPLETED">COMPLETED</option>
+                </select>
+            </td>
+            <td><input type="date" value="${todayStr}" required></td>
+            <td><select>${budgetOptions.map(b => `<option value="${b}">${b}</option>`).join('')}</select></td>
+            <td>${todayStr}</td>
+            <td>
+                <button class="saveBtn bg-green-500 hover:bg-green-700 text-white px-2 py-1 rounded">Save</button>
+                <button class="cancelBtn bg-gray-400 hover:bg-gray-600 text-white px-2 py-1 rounded">Cancel</button>
+            </td>
+        `;
+        attachRowEvents(newRow, null, true);
+    });
+
+    function makeRowEditable(row, clientId) {
+        const values = Array.from(row.cells).map(td => td.textContent.trim());
+        const original = [...values]; // backup for cancel
+
+        row.innerHTML = `
+            <td><input type="text" value="${values[0]}" /></td>
+            <td><input type="text" value="${values[1]}" /></td>
+            <td>
+                <select>
+                    <option value="NEW" ${values[2]==="NEW"?"selected":""}>NEW</option>
+                    <option value="IN_PROGRESS" ${values[2]==="IN_PROGRESS"?"selected":""}>IN_PROGRESS</option>
+                    <option value="COMPLETED" ${values[2]==="COMPLETED"?"selected":""}>COMPLETED</option>
+                </select>
+            </td>
+            <td><input type="date" value="${values[3]}" /></td>
+            <td><select>${budgetOptions.map(b => `<option value="${b}" ${values[4]===b?"selected":""}>${b}</option>`).join('')}</select></td>
+            <td>${todayStr}</td>
+            <td>
+                <button class="saveBtn bg-green-500 hover:bg-green-700 text-white px-2 py-1 rounded">Save</button>
+                <button class="cancelBtn bg-gray-400 hover:bg-gray-600 text-white px-2 py-1 rounded">Cancel</button>
+            </td>
+        `;
+        attachRowEvents(row, clientId, false, original);
+    }
+
+    function saveRow(row, clientId) {
+        const inputs = row.querySelectorAll('input, select');
+        const data = {
+            name: inputs[0].value,
+            phone: inputs[1].value,
+            status: inputs[2].value,
+            followUpDate: inputs[3].value,
+            budget: inputs[4].value
+        };
+
+        row.className = getRowColor(data.followUpDate);
+
+        row.innerHTML = `
+            <td>${data.name}</td>
+            <td>${data.phone}</td>
+            <td>${data.status}</td>
+            <td>${data.followUpDate}</td>
+            <td>${data.budget}</td>
+            <td>${todayStr}</td>
+            <td>
+                <button class="editBtn bg-blue-500 hover:bg-blue-700 text-white px-2 py-1 rounded">Edit</button>
+                <button class="deleteBtn bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded">Delete</button>
+            </td>
+        `;
+        attachRowEvents(row, clientId);
+
+        // Submit to backend
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/clients/save';
+        for (const key in data) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = data[key];
+            form.appendChild(input);
+        }
+        if (clientId) {
+            const idInput = document.createElement('input');
+            idInput.type = 'hidden';
+            idInput.name = "id";
+            idInput.value = clientId;
+            form.appendChild(idInput);
+        }
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    function attachRowEvents(row, clientId, isNew = false, original = null) {
+        const editBtn = row.querySelector('.editBtn');
+        const saveBtn = row.querySelector('.saveBtn');
+        const cancelBtn = row.querySelector('.cancelBtn');
+        const deleteBtn = row.querySelector('.deleteBtn');
+
+        if (editBtn) editBtn.onclick = () => makeRowEditable(row, clientId);
+        if (saveBtn) saveBtn.onclick = () => saveRow(row, clientId);
+        if (cancelBtn) cancelBtn.onclick = () => {
+            if (isNew) {
+                row.remove();
+            } else if (original) {
+                row.innerHTML = `
+                    <td>${original[0]}</td>
+                    <td>${original[1]}</td>
+                    <td>${original[2]}</td>
+                    <td>${original[3]}</td>
+                    <td>${original[4]}</td>
+                    <td>${todayStr}</td>
+                    <td>
+                        <button class="editBtn bg-blue-500 hover:bg-blue-700 text-white px-2 py-1 rounded">Edit</button>
+                        <button class="deleteBtn bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded">Delete</button>
+                    </td>
+                `;
+                attachRowEvents(row, clientId);
+            }
+        };
+        if (deleteBtn) deleteBtn.onclick = () => {
+            if (clientId && confirm('Are you sure?')) {
+                window.location.href = '/admin/clients/delete/' + clientId;
+            } else {
+                row.remove();
+            }
+        };
+    }
+
+    // Initialize existing rows
+    document.querySelectorAll('#clientTable tbody tr').forEach(row => {
+        const clientId = row.getAttribute('data-id');
+        attachRowEvents(row, clientId);
+        const followUpDate = row.cells[3].textContent;
+        row.classList.add(getRowColor(followUpDate));
+    });
+</script>
+
+</body>
+</html>

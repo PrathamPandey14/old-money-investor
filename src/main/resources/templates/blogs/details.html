@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${blog.title}">Blog Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --card-color: #222222;
+            --primary: #1DCD9F;
+            --secondary: #169976;
+        }
+    </style>
+</head>
+<body class="bg-[var(--bg-color)] text-gray-200">
+
+<!-- HEADER -->
+<header class="w-full bg-[var(--bg-color)] p-4 shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+        <a href="@{/blogs}" class="text-[var(--primary)] font-bold text-xl">← Back to Blogs</a>
+        <h1 class="text-lg md:text-2xl font-semibold text-gray-300" th:text="${blog.title}">Blog Title</h1>
+    </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="max-w-7xl mx-auto py-10 px-4 grid grid-cols-1 lg:grid-cols-3 gap-8" x-data="{ tab: 'content' }">
+
+    <!-- LEFT CONTENT -->
+    <div class="lg:col-span-2">
+
+        <!-- FEATURE IMAGE -->
+        <div class="h-[400px] w-full rounded-xl overflow-hidden shadow-lg mb-6">
+            <img th:if="${blog.imageList != null and !#lists.isEmpty(blog.imageList)}"
+                 th:src="@{${blog.imageList[0]}}"
+                 alt="Blog Image"
+                 class="w-full h-full object-cover"/>
+            <div th:if="${blog.imageList == null or #lists.isEmpty(blog.imageList)}"
+                 class="w-full h-full bg-gray-800 flex items-center justify-center text-gray-400">
+                No Image Available
+            </div>
+        </div>
+        <div class="grid grid-cols-4 gap-3 mt-4" th:if="${blog.imageList != null and blog.imageList.size() > 1}">
+            <div th:each="img, iStat : ${blog.imageList}" th:if="${iStat.index > 0}">
+                <img th:src="@{${img}}" alt="Gallery Image"
+                     class="h-24 w-full object-cover rounded-lg border border-gray-600 cursor-pointer hover:scale-105 transition"/>
+            </div>
+        </div>
+
+        <!-- TAB NAVIGATION -->
+        <div class="flex gap-6 border-b border-gray-600 mb-8">
+            <button @click="tab = 'content'" :class="tab === 'content' ? 'text-[var(--primary)] border-b-2 border-[var(--primary)]' : 'text-gray-400'"
+                    class="pb-2 font-semibold">Content</button>
+            <button @click="tab = 'details'" :class="tab === 'details' ? 'text-[var(--primary)] border-b-2 border-[var(--primary)]' : 'text-gray-400'"
+                    class="pb-2 font-semibold">Details</button>
+            <button @click="tab = 'author'" :class="tab === 'author' ? 'text-[var(--primary)] border-b-2 border-[var(--primary)]' : 'text-gray-400'"
+                    class="pb-2 font-semibold">Author</button>
+        </div>
+
+        <!-- CONTENT TAB -->
+        <div x-show="tab === 'content'" x-transition class="prose text-gray-300 mb-12" th:utext="${blog.content}">
+            Blog content goes here...
+        </div>
+
+        <!-- DETAILS TAB -->
+        <div x-show="tab === 'details'" x-transition class="text-gray-300 mb-12">
+            <p><strong>Category:</strong> <span th:text="${blog.blogCategory}">Tech</span></p>
+            <p><strong>Type:</strong> <span th:text="${blog.blogType}">Tutorial</span></p>
+            <p><strong>Created By:</strong> <span th:text="${blog.createdBy}">Admin</span></p>
+            <p><strong>Created At:</strong> <span th:text="${blog.createdAt}">22 Sep 2025</span></p>
+            <p><strong>Updated At:</strong> <span th:text="${blog.updatedAt}">23 Sep 2025</span></p>
+        </div>
+
+        <!-- AUTHOR TAB -->
+        <div x-show="tab === 'author'" x-transition class="text-gray-300 mb-12">
+            <p><strong>Author:</strong> <span th:text="${blog.author}">John Doe</span></p>
+<!--            <p th:if="${blog.authorBio != null}"><strong>Bio:</strong> <span th:text="${blog.authorBio}">Short author bio here.</span></p>-->
+        </div>
+
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="lg:col-span-1">
+        <div class="bg-[var(--card-color)] p-6 rounded-xl shadow-lg sticky top-24">
+            <h2 class="text-xl font-bold text-[var(--primary)] mb-4" th:text="${blog.title}">Blog Title</h2>
+            <p class="text-gray-400 mb-2">📅 Published: <span th:text="${blog.createdAt}">22 Sep 2025</span></p>
+            <p class="text-gray-400 mb-4">✏️ Updated: <span th:text="${blog.updatedAt}">23 Sep 2025</span></p>
+            <p class="text-gray-400 mb-4">📂 Category: <span th:text="${blog.blogCategory}">Tech</span></p>
+            <p class="text-gray-400 mb-4">🗂 Type: <span th:text="${blog.blogType}">Tutorial</span></p>
+
+            <!-- Optional Tags -->
+<!--            <div th:if="${blog.tags != null}" class="mb-6">-->
+<!--                <h3 class="text-gray-400 mb-2">Tags:</h3>-->
+<!--                <div class="flex flex-wrap gap-2">-->
+<!--                    <span th:each="tag : ${blog.tags}" class="bg-[var(&#45;&#45;primary)] text-black px-2 py-1 rounded-full text-sm" th:text="${tag}">Tag</span>-->
+<!--                </div>-->
+<!--            </div>-->
+        </div>
+    </aside>
+
+</main>
+
+</body>
+</html>

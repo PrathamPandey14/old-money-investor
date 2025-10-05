@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${project.id} != null ? 'Edit Project' : 'Add Project'">Project Form</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+
+<div class="container mx-auto px-6 py-10">
+    <a th:href="@{/admin/projects}" class="text-blue-600 hover:underline mb-4 inline-block">&larr; Back to Projects</a>
+
+    <h1 class="text-4xl font-bold mb-6" th:text="${project.id} != null ? 'Edit Project' : 'Add Project'">Project Form</h1>
+
+    <form th:action="${project.id} != null ? @{'/admin/projects/update/' + ${project.id}} : @{/admin/projects}"
+          th:object="${project}" method="post" class="bg-white p-6 rounded shadow-md space-y-4">
+
+        <div>
+            <label class="block font-semibold">Project Name</label>
+            <input type="text" th:field="*{name}" class="w-full border p-2 rounded" required>
+        </div>
+
+        <div>
+            <label class="block font-semibold">Location</label>
+            <input type="text" th:field="*{location}" class="w-full border p-2 rounded" required>
+        </div>
+
+        <div>
+            <label class="block font-semibold">Developer Name</label>
+            <input type="text" th:field="*{developerName}" class="w-full border p-2 rounded" required>
+        </div>
+
+        <div>
+            <label class="block font-semibold">Developer Website</label>
+            <input type="text" th:field="*{developerWebsite}" class="w-full border p-2 rounded">
+        </div>
+
+        <div>
+            <label class="block font-semibold">Status</label>
+            <select th:field="*{status}" class="w-full border p-2 rounded">
+                <option value="Planned">Planned</option>
+                <option value="Under Construction">Under Construction</option>
+                <option value="Completed">Completed</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="block font-semibold">Total Units</label>
+            <input type="number" th:field="*{totalUnits}" class="w-full border p-2 rounded">
+        </div>
+
+        <div>
+            <label class="block font-semibold">Price Range</label>
+            <input type="text" th:field="*{priceRange}" class="w-full border p-2 rounded">
+        </div>
+
+        <div>
+            <label class="block font-semibold">Launch Date</label>
+            <input type="date" th:field="*{launchDate}" class="w-full border p-2 rounded">
+        </div>
+
+        <div>
+            <label class="block font-semibold">Completion Date</label>
+            <input type="date" th:field="*{completionDate}" class="w-full border p-2 rounded">
+        </div>
+
+        <div>
+            <label class="block font-semibold">Description</label>
+            <textarea th:field="*{description}" class="w-full border p-2 rounded" rows="4"></textarea>
+        </div>
+
+        <div>
+            <label class="block font-semibold">Amenities (comma separated)</label>
+            <input type="text" th:field="*{amenities}" class="w-full border p-2 rounded"
+                   th:value="${project.amenities != null} ? ${#strings.listJoin(project.amenities, ',')} : ''">
+        </div>
+
+        <div>
+            <label class="block font-semibold">Image URLs (comma separated)</label>
+            <input type="text" th:field="*{images}" class="w-full border p-2 rounded"
+                   th:value="${project.images != null} ? ${#strings.listJoin(project.images, ',')} : ''">
+        </div>
+
+
+
+        <!-- Submit -->
+        <div>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                Save Project
+            </button>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

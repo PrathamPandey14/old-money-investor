@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OMI - Navbar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: Inter, "Segoe UI", sans-serif;
+        }
+
+        /* Smooth mobile menu animation */
+        .slide-down {
+            transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
+            overflow: hidden;
+        }
+
+        /* Menu link hover underline */
+        .menu-link {
+            position: relative;
+            transition: color 0.3s;
+        }
+        .menu-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            left: 0;
+            bottom: -4px;
+            background-color: #1DCD9F;
+            transition: width 0.3s;
+        }
+        .menu-link:hover::after {
+            width: 100%;
+        }
+
+        /* Smooth button hover */
+        .btn-phone {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .btn-phone:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        /* Mobile menu fade-in */
+        .mobile-item {
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        .mobile-item.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+<!-- NAVBAR -->
+<nav class="bg-[#483C32] shadow-md px-6 py-4" th:fragment="navbar">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+        <!-- Logo -->
+        <a th:href="@{/}" class="flex items-center">
+            <img th:src="@{/images/logo.png}" alt="OMI Logo" class="h-24 w-auto"/>
+        </a>
+
+        <!-- Desktop Menu -->
+        <div class="hidden md:flex flex-1 justify-center space-x-10 items-center">
+            <a th:href="@{/}" class="text-white font-bold menu-link">Home</a>
+            <a th:href="@{/properties}" class="text-white font-bold menu-link">Properties</a>
+            <a th:href="@{/blogs}" class="text-white font-bold menu-link">Blog</a>
+            <a th:href="@{/services}" class="text-white font-bold menu-link">Services</a>
+            <a th:href="@{/contact}" class="text-white font-bold menu-link">Contact</a>
+        </div>
+
+        <!-- Right side phone button -->
+        <div class="hidden md:flex">
+            <a href="tel:+917599950864"
+               class="btn-phone bg-[#362E28] text-white font-semibold px-5 py-2 rounded-lg shadow-md hover:scale-105">
+                📞 +91-7599950864
+            </a>
+        </div>
+
+        <!-- Mobile Toggle Button -->
+        <button id="mobileToggle" class="md:hidden text-white text-3xl focus:outline-none">☰</button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="slide-down max-h-0 flex-col md:hidden px-6 pt-0 pb-0 bg-[#483C32] space-y-1">
+        <a th:href="@{/}" class="block py-3 text-white font-bold menu-link mobile-item">Home</a>
+        <a th:href="@{/properties}" class="block py-3 text-white font-bold menu-link mobile-item">Properties</a>
+        <a th:href="@{/blogs}" class="block py-3 text-white font-bold menu-link mobile-item">Blog</a>
+        <a th:href="@{/services}" class="block py-3 text-white font-bold menu-link mobile-item">Services</a>
+        <a th:href="@{/contact}" class="block py-3 text-white font-bold menu-link mobile-item">Contact</a>
+        <a href="tel:+917599950864"
+           class="block py-3 text-center bg-[#362E28] text-white font-semibold rounded-lg mt-2 hover:scale-105 transition-transform mobile-item">
+            📞 +91-7599950864
+        </a>
+    </div>
+</nav>
+
+<script>
+    const toggleButton = document.getElementById("mobileToggle");
+    const mobileMenu = document.getElementById("mobileMenu");
+    const mobileItems = mobileMenu.querySelectorAll(".mobile-item");
+
+    toggleButton.addEventListener("click", () => {
+        if (mobileMenu.style.maxHeight && mobileMenu.style.maxHeight !== "0px") {
+            mobileMenu.style.maxHeight = "0px";
+            mobileMenu.style.paddingTop = "0px";
+            mobileMenu.style.paddingBottom = "0px";
+            mobileItems.forEach(item => item.classList.remove("show"));
+        } else {
+            mobileMenu.style.maxHeight = mobileMenu.scrollHeight + "px";
+            mobileMenu.style.paddingTop = "0.5rem";
+            mobileMenu.style.paddingBottom = "0.5rem";
+            mobileItems.forEach((item, index) => {
+                setTimeout(() => item.classList.add("show"), index * 100);
+            });
+        }
+    });
+
+    window.addEventListener("resize", () => {
+        if (window.innerWidth >= 768) {
+            mobileMenu.style.maxHeight = null;
+            mobileMenu.style.paddingTop = null;
+            mobileMenu.style.paddingBottom = null;
+            mobileItems.forEach(item => item.classList.remove("show"));
+        }
+    });
+</script>
+</body>
+</html>

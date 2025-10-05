@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${property.title}">Property Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <style>
+        :root {
+          --bg-color: #F8FAFC;           /* Light background */
+            --card-color: rgba(255,255,255,0.8);  /* Light glass card */
+            --primary: #362E28;            /* Blue for headings */
+            --secondary: #2563EB;
+        }
+        .glass-card {
+          background: var(--card-color);
+          border-radius: 1rem;
+          padding: 1.5rem;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-[var(--bg-color)] text-gray-800">
+
+<!-- HEADER -->
+<header class="w-full bg-white p-4 shadow-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+        <a href="/properties" class="text-[var(--primary)] font-bold text-xl">← Back to Properties</a>
+        <h1 class="text-lg md:text-2xl font-semibold text-gray-700" th:text="${property.title}">Property Title</h1>
+    </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="max-w-7xl mx-auto py-10 px-4 grid grid-cols-1 lg:grid-cols-3 gap-8"
+      x-data="{ tab: 'overview', showModal: false, modalImg: '' }">
+
+    <!-- LEFT CONTENT -->
+    <div class="lg:col-span-2 space-y-6">
+
+        <!-- IMAGE SECTION -->
+        <div>
+            <!-- Main Image -->
+            <div class="h-[400px] w-full rounded-xl overflow-hidden shadow-lg mb-4 cursor-pointer"
+                 @click="showModal = true; modalImg = $el.querySelector('img')?.src">
+                <img th:if="${!#lists.isEmpty(property.imageList)}"
+                     th:src="@{${property.imageList[0]}}"
+                     alt="Main Image"
+                     class="w-full h-full object-cover"/>
+                <div th:if="${#lists.isEmpty(property.imageList)}"
+                     class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-500">
+                    No Image Available
+                </div>
+            </div>
+
+            <!-- Thumbnails -->
+            <div class="grid grid-cols-4 gap-3">
+                <div th:each="img, iStat : ${property.imageList}" th:if="${iStat.index > 0}">
+                    <img th:src="@{${img}}" alt="Gallery Image"
+                         @click="showModal = true; modalImg = $event.target.src"
+                         class="h-24 w-full object-cover rounded-lg border border-gray-300 cursor-pointer hover:scale-105 transition"/>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL -->
+        <div x-show="showModal"
+             x-transition
+             @click.self="showModal = false"
+             class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
+            <button @click="showModal = false"
+                    class="absolute top-4 right-4 text-white text-3xl font-bold">&times;
+            </button>
+            <img :src="modalImg" alt="Preview"
+                 class="max-h-[90vh] max-w-[90vw] rounded-lg shadow-xl"/>
+        </div>
+
+        <!-- ACCORDION BOXES -->
+        <div class="space-y-4" x-data="{ open: '' }">
+
+            <!-- Overview -->
+            <div class="glass-card">
+                <button class="w-full flex justify-between items-center text-left"
+                        @click="open === 'overview' ? open = '' : open = 'overview'">
+                    <h2 class="text-2xl font-semibold text-[var(--primary)]">Overview</h2>
+                    <span x-text="open === 'overview' ? '-' : '+'"></span>
+                </button>
+                <div x-show="open === 'overview'" x-collapse>
+                    <p><strong>Developer:</strong> <span th:text="${property.developer}">ABC Builders</span></p>
+                    <p><strong>Address:</strong> <span
+                            th:text="${property.address}">123 Main Street, Downtown, City</span></p>
+                </div>
+            </div>
+
+            <!-- Amenities -->
+            <div class="glass-card" th:if="${property.amenities != null}">
+                <button class="w-full flex justify-between items-center text-left"
+                        @click="open === 'amenities' ? open = '' : open = 'amenities'">
+                    <h2 class="text-2xl font-semibold text-[var(--primary)]">Amenities</h2>
+                    <span x-text="open === 'amenities' ? '-' : '+'"></span>
+                </button>
+                <div x-show="open === 'amenities'" x-collapse>
+                    <ul class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        <li th:each="amenity : ${property.amenities}" class="flex items-center gap-2">✅
+                            <span th:text="${amenity}">Swimming Pool</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Additional Info -->
+            <div class="glass-card">
+                <button class="w-full flex justify-between items-center text-left"
+                        @click="open === 'info' ? open = '' : open = 'info'">
+                    <h2 class="text-2xl font-semibold text-[var(--primary)]">Additional Information</h2>
+                    <span x-text="open === 'info' ? '-' : '+'"></span>
+                </button>
+                <div x-show="open === 'info'" x-collapse class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <p><strong>Furnishing:</strong> <span th:text="${property.furnishing}">Semi-Furnished</span></p>
+                    <p><strong>Flooring:</strong> <span th:text="${property.flooring}">Marble</span></p>
+                    <p><strong>Overlooking:</strong> <span th:text="${property.overlooking}">Park/Garden</span></p>
+                    <p><strong>Additional Rooms:</strong> <span th:text="${property.additionalRooms}">Study Room</span>
+                    </p>
+                    <p><strong>Floors Allowed:</strong> <span th:text="${property.floorsAllowed}">10</span></p>
+                    <p><strong>Authority Approval:</strong> <span th:text="${property.authorityApproval}">Yes</span></p>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="glass-card">
+                <button class="w-full flex justify-between items-center text-left"
+                        @click="open === 'desc' ? open = '' : open = 'desc'">
+                    <h2 class="text-2xl font-semibold text-[var(--primary)]">Description</h2>
+                    <span x-text="open === 'desc' ? '-' : '+'"></span>
+                </button>
+                <div x-show="open === 'desc'" x-collapse>
+                    <p class="leading-relaxed text-gray-700" th:text="${property.description}">
+                        Spacious and luxurious villa with modern design, located in the heart of the city...
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="lg:col-span-1">
+        <div class="glass-card sticky top-24 shadow-lg">
+            <h2 class="text-xl font-bold text-[var(--primary)] mb-2" th:text="${property.title}">Luxury Villa</h2>
+            <p class="text-gray-600 mb-2">📍 <span th:text="${property.location}">Location</span></p>
+            <p class="text-2xl font-bold text-[var(--primary)] mb-6">₹ <span
+                    th:text="${property.price}">1,00,00,000</span></p>
+
+            <ul class="space-y-2 text-gray-600 mb-6">
+                <li>🛏 Bedrooms: <span th:text="${property.bedrooms}">3</span></li>
+                <li>🛁 Bathrooms: <span th:text="${property.bathrooms}">2</span></li>
+                <li>🪟 Balcony: <span th:text="${property.balcony}">1</span></li>
+                <li>📐 Area: <span th:text="${property.carpetArea}">1200</span> sq.ft.</li>
+                <li>🌞 Facing: <span th:text="${property.facing}">North</span></li>
+                <li>📌 Status: <span th:text="${property.status}">Ready to Move</span></li>
+            </ul>
+
+            <!-- Google Map -->
+            <div class="mb-6 rounded-lg overflow-hidden shadow-md">
+                <iframe th:src="'https://www.google.com/maps?q=' + ${property.location} + '&output=embed'"
+                        width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+        </div>
+    </aside>
+</main>
+
+</body>
+</html>
