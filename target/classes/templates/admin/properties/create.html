@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Create Property</title>
+    <style>
+        :root{
+          --bg-1:#000; --bg-2:#222; --accent:#1DCD9F; --accent-dark:#169976;
+          --glass:rgba(255,255,255,0.04); --card-shadow:0 10px 30px rgba(0,0,0,0.45);
+          --radius:14px; --max-width:980px;
+        }
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{
+          font-family:Inter,'Segoe UI',Tahoma,sans-serif;
+          background:linear-gradient(180deg,var(--bg-2),#0b0b0b 60%);
+          color:#e6eef0;padding:20px;scroll-behavior:smooth;
+        }
+        .wrap{max-width:var(--max-width);margin:0 auto;padding-bottom:100px;}
+        .nav{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 0;}
+        .brand{display:flex;align-items:center;gap:.75rem;text-decoration:none;color:var(--accent);font-weight:700;font-size:1.15rem}
+        .brand .logo{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));display:inline-flex;align-items:center;justify-content:center;color:#001010;font-weight:800}
+        .card{margin-top:18px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:var(--radius);padding:28px;box-shadow:var(--card-shadow);border:1px solid rgba(255,255,255,0.04);backdrop-filter:blur(8px);}
+        h1{font-size:1.6rem;margin-bottom:10px;color:#f0fff8}
+        .accent-pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(29,205,159,0.08);color:var(--accent);font-weight:700}
+        form .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+        @media(max-width:768px){form .grid{grid-template-columns:1fr}}
+        label{display:block;font-weight:600;margin-bottom:6px;color:rgba(230,238,240,0.9)}
+        input[type='text'],select,textarea{
+          width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);
+          background:transparent;color:inherit;font-size:1rem;outline:none;
+          transition:box-shadow .18s,transform .12s;
+        }
+        textarea{min-height:100px;resize:vertical}
+        input:focus,textarea:focus,select:focus{
+          box-shadow:0 8px 30px rgba(29,205,159,0.08);
+          transform:translateY(-2px);border-color:var(--accent)
+        }
+        .file-wrap{margin-top:8px}
+        .file-custom{padding:12px;border-radius:10px;border:1px dashed rgba(255,255,255,0.2);display:inline-block;width:100%;text-align:center;cursor:pointer}
+        .file-custom input{display:none}
+
+        /* Carousel */
+        .carousel{position:relative;width:100%;margin-top:16px;overflow:hidden;border-radius:12px;border:1px solid rgba(255,255,255,0.1);}
+        .carousel-track{display:flex;transition:transform .5s ease;}
+        .carousel img{width:100%;height:400px;object-fit:cover;flex-shrink:0;border-radius:12px;}
+        .carousel button{
+          position:absolute;top:50%;transform:translateY(-50%);
+          background:rgba(0,0,0,0.5);color:white;border:none;padding:10px;border-radius:50%;cursor:pointer;
+        }
+        .carousel .prev{left:10px}
+        .carousel .next{right:10px}
+        .carousel-thumbnails{display:flex;justify-content:start;gap:8px;margin-top:8px;overflow-x:auto;}
+        .carousel-thumbnails img{width:80px;height:60px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:border .2s;}
+        .carousel-thumbnails img.active{border-color:var(--accent)}
+
+        .form-actions{display:flex;gap:12px;align-items:center;margin-top:24px;flex-wrap:wrap}
+        .btn{
+          background:linear-gradient(90deg,var(--accent),var(--accent-dark));
+          color:var(--bg-1);padding:.6rem 1rem;border-radius:10px;border:none;font-weight:700;cursor:pointer;
+          box-shadow:0 6px 18px rgba(29,205,159,0.14);transition:transform .18s ease,box-shadow .18s ease;
+        }
+        .btn:active{transform:translateY(1px);}
+        .back-link{color:rgba(230,238,240,0.8);text-decoration:none;padding:.4rem .6rem;border-radius:8px;font-weight:600}
+        .back-link:hover{text-decoration:underline}
+        .reveal{opacity:0;transform:translateY(16px) scale(.995);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.9,.3,1)}
+        .reveal.show{opacity:1;transform:none}
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <nav class="nav reveal">
+        <a class="brand" th:href="@{/admin}">
+            <span class="logo">OMI</span>
+            <span>Admin Panel</span>
+        </a>
+    </nav>
+
+    <main class="card reveal">
+        <h1>Create Property <span class="accent-pill">New</span></h1>
+        <form th:action="@{/admin/properties/create}" th:object="${propertyDto}" method="post" enctype="multipart/form-data">
+            <div class="grid">
+                <!-- Basic fields -->
+                <div><label>Title</label><input type="text" th:field="*{title}" required></div>
+                <div><label>Location</label><input type="text" th:field="*{location}" required></div>
+                <div><label>Price</label><input type="text" th:field="*{price}"></div>
+                <div><label>Developer</label><input type="text" th:field="*{developer}"></div>
+                <div><label>Bedrooms</label><input type="text" th:field="*{bedrooms}"></div>
+                <div><label>Bathrooms</label><input type="text" th:field="*{bathrooms}"></div>
+                <div><label>Balcony</label><input type="text" th:field="*{balcony}"></div>
+
+                <!-- Dropdowns -->
+                <div><label>Transaction Type</label>
+                    <select th:field="*{transactionType}" required>
+                        <option value="" disabled>Select Transaction Type</option>
+                        <option value="Sale">Sale</option>
+                        <option value="Rent">Rent</option>
+                    </select>
+                </div>
+                <div><label>Status</label>
+                    <select th:field="*{status}" required>
+                        <option value="" disabled>Select Status</option>
+                        <option value="Available">Available</option>
+                        <option value="Sold">Sold</option>
+                        <option value="Booked">Booked</option>
+                    </select>
+                </div>
+                <div><label>Facing</label>
+                    <select th:field="*{facing}">
+                        <option value="" disabled>Select Facing</option>
+                        <option value="North">North</option>
+                        <option value="South">South</option>
+                        <option value="East">East</option>
+                        <option value="West">West</option>
+                    </select>
+                </div>
+                <div><label>Furnished Status</label>
+                    <select th:field="*{furnishedStatus}">
+                        <option value="" disabled>Select Furnished Status</option>
+                        <option value="Furnished">Furnished</option>
+                        <option value="Semi-furnished">Semi-furnished</option>
+                        <option value="Unfurnished">Unfurnished</option>
+                    </select>
+                </div>
+                <div style="grid-column:1/-1"><label>Amenities</label>
+                    <select th:field="*{amenities}" multiple>
+                        <option value="Swimming_Pool">Swimming Pool</option>
+                        <option value="Power_Backup">Power Backup</option>
+                        <option value="Lift">Lift</option>
+                        <option value="Security">Security</option>
+                        <option value="CCTV_Camera">CCTV Camera</option>
+                        <option value="Gymnasium">Gymnasium</option>
+                        <option value="Gardens">Gardens</option>
+                        <option value="Parking">Parking</option>
+                        <option value="Club_house">Club House</option>
+                        <option value="Indoor_games">Indoor Games</option>
+                        <option value="Outdoor_games">Outdoor Games</option>
+                    </select>
+                </div>
+
+                <!-- More details -->
+                <div><label>Carpet Area</label><input type="text" th:field="*{carpetArea}"></div>
+                <div><label>Floor</label><input type="text" th:field="*{floor}"></div>
+                <div><label>Age of Construction</label><input type="text" th:field="*{ageOfConstruction}"></div>
+                <div style="grid-column:1/-1"><label>Price Breakup</label><textarea th:field="*{priceBreakup}"></textarea></div>
+                <div><label>Booking Amount</label><input type="text" th:field="*{bookingAmount}"></div>
+                <div style="grid-column:1/-1"><label>Address</label><textarea th:field="*{address}"></textarea></div>
+                <div><label>Furnishing Details</label><input type="text" th:field="*{furnishing}"></div>
+                <div><label>Flooring</label><input type="text" th:field="*{flooring}"></div>
+                <div><label>Overlooking</label><input type="text" th:field="*{overlooking}"></div>
+                <div><label>Additional Rooms</label><input type="text" th:field="*{additionalRooms}"></div>
+                <div><label>Floors Allowed</label><input type="text" th:field="*{floorsAllowed}"></div>
+                <div><label>Authority Approval</label><input type="text" th:field="*{authorityApproval}"></div>
+                <div style="grid-column:1/-1"><label>Description</label><textarea th:field="*{description}"></textarea></div>
+
+                <!-- File Upload & Carousel -->
+                <div style="grid-column:1/-1">
+                    <label>Upload Images</label>
+                    <div class="file-wrap">
+                        <label class="file-custom">
+                            Click to upload images
+                            <input type="file" name="files" multiple onchange="previewCarousel(event)">
+                        </label>
+                    </div>
+
+                    <div class="carousel" id="propertyCarousel" style="display:none;">
+                        <div class="carousel-track" id="carouselTrack"></div>
+                        <button type="button" class="prev" onclick="moveCarousel(-1)">❮</button>
+                        <button type="button" class="next" onclick="moveCarousel(1)">❯</button>
+                    </div>
+                    <div class="carousel-thumbnails" id="carouselThumbnails"></div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn">Save Property</button>
+                <a th:href="@{/admin/properties}" class="back-link">← Back to Properties</a>
+            </div>
+        </form>
+    </main>
+</div>
+
+<script>
+    let currentIndex = 0;
+    function previewCarousel(event){
+        const track=document.getElementById('carouselTrack');
+        const carousel=document.getElementById('propertyCarousel');
+        const thumbs=document.getElementById('carouselThumbnails');
+        track.innerHTML=''; thumbs.innerHTML=''; currentIndex=0;
+
+        const files=Array.from(event.target.files);
+        if(files.length===0){carousel.style.display='none'; return;}
+        carousel.style.display='block';
+
+        files.forEach((file,i)=>{
+            const reader=new FileReader();
+            reader.onload=e=>{
+                const img=document.createElement('img');
+                img.src=e.target.result;
+                track.appendChild(img);
+
+                const thumb=document.createElement('img');
+                thumb.src=e.target.result;
+                if(i===0) thumb.classList.add('active');
+                thumb.onclick=()=>{currentIndex=i; updateCarousel();}
+                thumbs.appendChild(thumb);
+            }
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function moveCarousel(step){
+        const track=document.getElementById('carouselTrack');
+        const total=track.children.length;
+        if(total===0) return;
+        currentIndex=(currentIndex+step+total)%total;
+        updateCarousel();
+    }
+
+    function updateCarousel(){
+        const track=document.getElementById('carouselTrack');
+        const thumbs=document.getElementById('carouselThumbnails').children;
+        track.style.transform=`translateX(-${currentIndex*100}%)`;
+        Array.from(thumbs).forEach((t,i)=>t.classList.toggle('active', i===currentIndex));
+    }
+
+    // Reveal animation
+    const observer=new IntersectionObserver((entries)=>{
+      entries.forEach(ent=>{if(ent.isIntersecting) ent.target.classList.add('show')});
+    },{threshold:.12});
+    document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>
